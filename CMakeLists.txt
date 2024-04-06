@@ -7,7 +7,7 @@ pico_sdk_init()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(joyshtick src/main.c src/usb_descriptors.c)
-add_executable(jreader src/read_joystick.c)
+add_executable(jreader read_joystick.c)
 
 pico_enable_stdio_usb(jreader 1)
 pico_enable_stdio_uart(jreader 0)
