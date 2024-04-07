@@ -14,11 +14,8 @@ int main() {
   adc_gpio_init(27);
 
   cal = callibrate_zero();
-  // because cal.##which is an invalid preprocessing token :(
-#define next_smooth(which) get_next_smooth(p##which, read_##which(), c##which)
-  coffset_t cx = cal.x;
-  coffset_t cy = cal.y;
 
+#define next_smooth(which) get_next_smooth(p##which, read_##which(), cal.which)
   int8_t px = 0, py = 0;
   while (true) {
     px = next_smooth(x);

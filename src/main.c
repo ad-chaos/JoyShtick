@@ -46,7 +46,7 @@ void hid_task(void) {
                          /* ry      = */ 0,
                          /* dpad    = */ 0,
                          /* buttons = */ 0);
-
-  px = get_next_smooth(px, read_x(), cal.x);
-  py = get_next_smooth(py, read_y(), cal.y);
+#define next_smooth(which) get_next_smooth(p##which, read_##which(), cal.which)
+  px = next_smooth(x);
+  py = next_smooth(y);
 }
