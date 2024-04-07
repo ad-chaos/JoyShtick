@@ -35,18 +35,7 @@ void hid_task(void) {
   if (!tud_hid_ready())
     return;
 
-  static int8_t px = 0;
-  static int8_t py = 0;
-  tud_hid_gamepad_report(/* id      = */ 0,
-                         /* x       = */ px,
-                         /* y       = */ py,
-                         /* z       = */ 0,
-                         /* rz      = */ 0,
-                         /* rx      = */ 0,
-                         /* ry      = */ 0,
-                         /* dpad    = */ 0,
-                         /* buttons = */ 0);
-#define next_smooth(which) get_next_smooth(p##which, read_##which(), cal.which)
-  px = next_smooth(x);
-  py = next_smooth(y);
+  static hid_gamepad_report_t greport = {};
+  tud_hid_report(0, &greport, sizeof(greport));
+  greport = get_next_stick_report(greport, read_all_axis(), cal);
 }

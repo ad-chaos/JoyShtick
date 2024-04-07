@@ -15,7 +15,7 @@ int main() {
 
   cal = callibrate_zero();
 
-#define next_smooth(which) get_next_smooth(p##which, read_##which(), cal.which)
+#define next_smooth(which) get_next_smooth_single(p##which, read_##which(), cal.which)
   int8_t px = 0, py = 0;
   while (true) {
     px = next_smooth(x);
