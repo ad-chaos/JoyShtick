@@ -1,46 +1,9 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2019 Ha Thach (tinyusb.org)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#include "class/hid/hid.h"
 #include "pico/unique_id.h"
 #include "tusb.h"
 #include "tusb_common.h"
 #include "tusb_types.h"
 
-/* A combination of interfaces must have a unique product id, since PC will save
- * device driver after the first plug. Same VID/PID with different interface e.g
- * MSC (first), then CDC (later) will possibly cause system error on PC.
- *
- * Auto ProductID layout's Bitmap:
- *   [MSB]         HID | MSC | CDC          [LSB]
- */
-#define _PID_MAP(itf, n) ((CFG_TUD_##itf) << (n))
-#define USB_PID                                                                \
-  (0x4000 | _PID_MAP(CDC, 0) | _PID_MAP(MSC, 1) | _PID_MAP(HID, 2) |           \
-   _PID_MAP(MIDI, 3) | _PID_MAP(VENDOR, 4))
-
+#define USB_PID 0x4004
 #define USB_VID 0xC01D // Cold
 #define USB_BCD 0x0110 // USB spec 1.1
 
@@ -69,23 +32,7 @@ uint8_t const *tud_descriptor_device_cb(void) {
 }
 
 // HID Report Descriptor
-// clang-format off
-uint8_t const desc_hid_report[] = {
-    HID_USAGE_PAGE( HID_USAGE_PAGE_DESKTOP     ),
-    HID_USAGE     ( HID_USAGE_DESKTOP_JOYSTICK ),
-    HID_COLLECTION( HID_COLLECTION_APPLICATION ),
-      /* X, Y position [-127, 127] */ \
-      HID_USAGE_PAGE     ( HID_USAGE_PAGE_DESKTOP ),
-      HID_USAGE          ( HID_USAGE_DESKTOP_X    ),
-      HID_USAGE          ( HID_USAGE_DESKTOP_Y    ),
-      HID_LOGICAL_MIN    ( 0x81                   ),
-      HID_LOGICAL_MAX    ( 0x7f                   ),
-      HID_REPORT_COUNT   ( 1                      ),
-      HID_REPORT_SIZE    ( 8                      ),
-      HID_INPUT          ( HID_DATA | HID_VARIABLE | HID_ABSOLUTE ),
-    HID_COLLECTION_END,
-};
-// clang-format on
+uint8_t const desc_hid_report[] = {TUD_HID_REPORT_DESC_GAMEPAD()};
 
 uint8_t const *tud_hid_descriptor_report_cb(uint8_t _instance) {
   return desc_hid_report;
@@ -175,4 +122,26 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
   _desc_str[0] = (TUSB_DESC_STRING << 8) | (2 * chr_count + 2);
 
   return _desc_str;
+}
+
+// For some reason these are two are required to be implemented by tinyusb
+uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id,
+                               hid_report_type_t report_type, uint8_t *buffer,
+                               uint16_t reqlen) {
+  (void)instance;
+  (void)report_id;
+  (void)report_type;
+  (void)buffer;
+  (void)reqlen;
+
+  return 0;
+}
+
+void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id,
+                           hid_report_type_t report_type, uint8_t const *buffer,
+                           uint16_t bufsize) {
+  (void)instance;
+  (void)report_id;
+  (void)report_type;
+  (void)buffer;
 }

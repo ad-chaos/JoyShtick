@@ -1,4 +1,5 @@
 .ipynb_checkpoints/
+.virtual_documents/
 .cache/
 build/
 compile_commands.json

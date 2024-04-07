@@ -1,11 +1,14 @@
 import serial
+import platform
 
-with serial.Serial("/dev/ttyACM0", 115200) as ser, open("dump.csv", 'w') as csv:
-    csv.write("x,y\n")
+if platform.system() == 'Darwin':
+    serial_device = "/dev/tty.usbmodem1101"
+else:
+    serial_device = "/dev/ttyACM0"
+
+with serial.Serial(serial_device, 115200) as ser:
     try:
         while True:
-            x, y = ser.readline().decode().split()
-            print(x, y)
-            csv.write(f"{x},{y}\n")
+            print(*ser.readline().decode().split())
     except KeyboardInterrupt:
-        print("Bye!")
+        print("Exit")
