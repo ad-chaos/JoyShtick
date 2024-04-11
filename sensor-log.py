@@ -2,7 +2,7 @@ import serial
 import platform
 
 if platform.system() == 'Darwin':
-    serial_device = "/dev/tty.usbmodem1101"
+    serial_device = "/dev/tty.usbmodem101"
 else:
     serial_device = "/dev/ttyACM0"
 
