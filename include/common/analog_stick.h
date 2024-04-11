@@ -13,6 +13,7 @@
 #define XPIN 1
 #define RYPIN 2
 #define RXPIN 3
+#define JPINS 0xf
 
 typedef struct {
   float zero;

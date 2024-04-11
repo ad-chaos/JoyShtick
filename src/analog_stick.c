@@ -22,11 +22,12 @@ uint16_t INLINE read_ry() {
 }
 
 analog_sticks_t INLINE read_all_axis() {
+  adc_set_round_robin(JPINS);
   return (analog_sticks_t){
-      .x = read_x(),
-      .y = read_y(),
-      .rx = read_rx(),
-      .ry = read_ry(),
+      .x = adc_read(),
+      .y = adc_read(),
+      .rx = adc_read(),
+      .ry = adc_read(),
   };
 }
 
@@ -39,16 +40,15 @@ int8_t INLINE get_next_smooth_single(const float current, const float input,
       /*span=*/4.);
 }
 
-hid_gamepad_report_t INLINE get_next_stick_report(const hid_gamepad_report_t current,
-                                            const analog_sticks_t input,
-                                            const callib_t callib) {
+hid_gamepad_report_t INLINE
+get_next_stick_report(const hid_gamepad_report_t current,
+                      const analog_sticks_t input, const callib_t callib) {
 #define next_smooth(which)                                                     \
   get_next_smooth_single(current.which, input.which, callib.which)
   return (hid_gamepad_report_t){
       .x = next_smooth(x),
       .y = next_smooth(y),
   };
-#undef next_smooth
 }
 
 callib_t callibrate_zero() {
@@ -56,16 +56,19 @@ callib_t callibrate_zero() {
   float zrx = 0., zry = 0.;
 
   for (uint8_t i = 0; i < 64; i++) {
-    zy = (i * zy + read_y()) / (i + 1);
-    zx = (i * zx + read_x()) / (i + 1);
-    zry = (i * zy + read_ry()) / (i + 1);
-    zrx = (i * zx + read_rx()) / (i + 1);
+    analog_sticks_t sticks = read_all_axis();
+#define cumulative_average(of) z##of = (i * z##of + sticks.of) / (i + 1)
+    cumulative_average(x);
+    cumulative_average(y);
+    cumulative_average(rx);
+    cumulative_average(ry);
   }
 
-  float hrx = MAX(zx, (1 << 12) - zx);
-  float hry = MAX(zy, (1 << 12) - zy);
-  float hrrx = MAX(zrx, (1 << 12) - zrx);
-  float hrry = MAX(zry, (1 << 12) - zry);
+#define half_range(of) float hr##of = MAX(z##of, (1 << 12) - z##of);
+  half_range(x);
+  half_range(y);
+  half_range(rx);
+  half_range(ry);
 
   return (callib_t){.x = {.zero = zx, .hrange = hrx},
                     .y = {.zero = zy, .hrange = hry},
