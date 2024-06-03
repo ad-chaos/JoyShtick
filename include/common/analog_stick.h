@@ -11,8 +11,6 @@
 
 #define YPIN 0
 #define XPIN 1
-#define RYPIN 2
-#define RXPIN 3
 #define JPINS 0xf
 
 typedef struct {
@@ -23,15 +21,11 @@ typedef struct {
 typedef struct {
   coffset_t x;
   coffset_t y;
-  coffset_t rx;
-  coffset_t ry;
 } callib_t;
 
 typedef struct {
   uint16_t x;
   uint16_t y;
-  uint16_t rx;
-  uint16_t ry;
 } analog_sticks_t;
 
 callib_t callibrate_zero(void);
@@ -40,6 +34,4 @@ hid_gamepad_report_t get_next_stick_report(const hid_gamepad_report_t, const ana
                                      const callib_t);
 uint16_t read_x(void);
 uint16_t read_y(void);
-uint16_t read_rx(void);
-uint16_t read_ry(void);
 analog_sticks_t read_all_axis(void);
